@@ -12,8 +12,10 @@ Offline first race timing for hybrid fitness races. One Expo codebase runs as a 
 6. Live results by division, built from the event log alone. Athletes who chose it show as initials.
 7. Head judge corrections win over judges. Two phones more than 2 seconds apart on one finish raise a flag.
 8. Phone check screen and a one tap export of everything on the phone.
+9. Server in `supabase/migrations`: row level security on every table, judge links, append only timing log.
+10. Live mode: open `/l/<token>` and the phone syncs every 5 seconds. With no signal it keeps everything and sends it later.
 
-Not built yet: the server, so nothing is sent off the phone. See `docs/phase-1-plan.md`.
+Not built yet: the organiser screens for signing in, building a race and making links. See `docs/phase-1-plan.md`.
 
 ## Run it
 
@@ -30,6 +32,14 @@ npx expo start
 ```
 
 Scan the QR code with Expo Go on your phone. Phone and computer must be on the same Wi-Fi.
+
+## Server setup (once)
+
+1. Create a Supabase project in the London region.
+2. In GitHub, Settings, Secrets and variables, Actions:
+   1. Variables: `SUPABASE_URL` (Project URL) and `SUPABASE_ANON_KEY` (publishable or anon key).
+   2. Secret: `SUPABASE_DB_URL` (Connect, Session pooler connection string with the password filled in).
+3. Run the Database workflow once from the Actions tab. After that it runs on every merge that changes a migration.
 
 ## Phone preview link
 

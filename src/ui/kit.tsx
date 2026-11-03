@@ -37,18 +37,24 @@ export function Screen({ children, scroll = true }: { children: ReactNode; scrol
 
 /** Always visible. The app never hides a pending sync. */
 export function SaveStatus() {
-  const { events, waitingToSend, serverConnected } = useRace();
-  const label =
-    events.length === 0
-      ? 'Nothing recorded yet'
-      : waitingToSend === 0
-        ? `All ${events.length} saved on phone and sent`
-        : serverConnected
-          ? `Saved on phone. ${waitingToSend} waiting to send`
-          : `Saved on phone (${events.length}). Not sent: rehearsal has no server yet`;
+  const { events, waitingToSend, serverConnected, online, problem } = useRace();
+  let label: string;
+  let bad = false;
+  if (!serverConnected) {
+    label = events.length === 0 ? 'Rehearsal. Nothing recorded yet' : `Rehearsal. ${events.length} saved on phone, not sent`;
+  } else if (problem) {
+    label = waitingToSend > 0 ? `${waitingToSend} saved on phone, not sent. ${problem}` : problem;
+    bad = true;
+  } else if (waitingToSend > 0) {
+    label = online ? `Saved on phone. Sending ${waitingToSend}` : `No signal. ${waitingToSend} saved on phone, will send`;
+  } else if (events.length === 0) {
+    label = online ? 'Connected. Nothing recorded yet' : 'No signal. Nothing recorded yet';
+  } else {
+    label = online ? `All ${events.length} saved on phone and sent` : 'No signal. Everything so far was sent';
+  }
   return (
-    <View style={s.status} accessibilityLiveRegion="polite">
-      <Text style={s.statusText}>{label}</Text>
+    <View style={[s.status, bad && s.statusBad]} accessibilityLiveRegion="polite">
+      <Text style={[s.statusText, bad && { color: C.warn }]}>{label}</Text>
     </View>
   );
 }
@@ -107,6 +113,7 @@ const s = StyleSheet.create({
   scroll: { flexGrow: 1 },
   inner: { flex: 1, padding: 16, gap: 14, width: '100%', maxWidth: 560, alignSelf: 'center' },
   status: { backgroundColor: C.panel, paddingHorizontal: 16, paddingVertical: 10, borderBottomWidth: 2, borderColor: C.line },
+  statusBad: { backgroundColor: C.warnBg, borderColor: C.warn },
   statusText: { color: C.text, fontSize: 16, fontWeight: '700' },
   btn: { borderRadius: 8, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },
   btnPlain: { borderWidth: 2, borderColor: C.line },

@@ -31,30 +31,38 @@ Native app store builds stay out of scope, as section 2 says.
 | 7 Export from any device in one tap | Done |
 | 11 Network cut 20 minutes, main phone killed, takeover | Passes against an in memory server |
 
+## Step 2 done: server and sync
+
+Hosting: Supabase, London region (decided 3 November 2026).
+
+| PRD | Status |
+|---|---|
+| 5 Postgres, row level security on `org_id`, UUIDs | Done in `supabase/migrations`. Every table has RLS |
+| 6A Cross tenant test on every table | Done. 14 tables, read, change, delete and forged inserts. Checked by breaking RLS on purpose |
+| 6A Org signup | Database function `create_org` done. Magic link sign in screen not built |
+| 6E Signed, role scoped, expiring links | Done. Only a SHA-256 hash of the token is stored. Role and race come from the link, never the phone |
+| 6E Revoked link stops within 5 seconds of reconnecting | Checked on every call. Phones sync every 5 seconds and on reconnect |
+| 6E Expired link shows a clear message | Done |
+| 7 Server merges by id, duplicates ignored | Done in `push_timing_events` |
+| 7 Append only | Updates and deletes blocked by a trigger, even for the server |
+| 11 Network cut 20 minutes, main phone killed, takeover | Passes against the real database functions |
+
+The phone opens `/l/<token>`, saves the race on the phone, and works with no signal from then on.
+
 ## Next steps, in PRD order
 
-1. Server: Postgres with row level security on `org_id` (Supabase is the likely host, to be confirmed). Org signup by magic link. Cross tenant test on every table.
-2. Real sync: the `SyncTransport` interface in `src/core/sync.ts` gets a Postgres implementation. The tests in `tests/sync.test.ts` run against it unchanged.
-3. Race builder screens and saved templates.
-4. Entries import from CSV and XLSX with column mapping.
-5. Signed, expiring access links and QR codes per role. Revoke within 5 seconds of reconnecting.
-6. Penalty, DNF, DNS, DSQ screens, protest window, one tap delay for later heats, head judge takeover screen.
-7. Results page for the public, share card, visitor capture.
-8. Volunteers, planning, owner console, billing, privacy.
+1. Organiser sign in by magic link, create a gym, create a race, and make judge links with a QR code.
+2. Race builder screens and saved templates.
+3. Entries import from CSV and XLSX with column mapping.
+4. Penalty, DNF, DNS, DSQ screens, protest window, one tap delay for later heats, head judge takeover screen.
+5. Results page for the public, share card, visitor capture.
+6. Volunteers, planning, owner console, billing, privacy.
 
-## Data model migrations (first cut)
+## Data model
 
-Every table has `id uuid primary key` and `org_id uuid not null` with a row level security policy on `org_id`.
-
-1. `orgs`, `org_members`
-2. `events`, `divisions`, `segments`, `segment_targets`
-3. `entries`, `athletes`, `entry_members`, `heats`, `heat_slots`
-4. `timing_events`: insert only. Updates and deletes revoked for every role. Unique on `id`.
-5. `access_links`: role, event, scope, expiry, revoked_at
-6. `audit_log`
+The tables live in `supabase/migrations/20261103000001_init.sql`. The PRD's Event is called `races` in the database and the app, to keep it apart from timing events.
 
 ## Open questions
 
-1. Hosting: Supabase in which region (Cape Town is not offered, closest is likely Europe or Mumbai)?
-2. Does the head judge need to see the finish keypad on the same phone, or a separate takeover screen?
-3. Final product name.
+1. Does the head judge need to see the finish keypad on the same phone, or a separate takeover screen?
+2. Final product name.

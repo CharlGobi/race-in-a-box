@@ -28,6 +28,7 @@ function Nav() {
       <Stack.Screen name="finish" options={{ title: 'Finish line' }} />
       <Stack.Screen name="results" options={{ title: 'Live results' }} />
       <Stack.Screen name="check" options={{ title: 'Phone check' }} />
+      <Stack.Screen name="l/[token]" options={{ title: 'Race link' }} />
     </Stack>
   );
 }
