@@ -1,98 +1,76 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { useRace } from '@/app-state/race-context';
+import { Btn, C, H1, P, Screen } from '@/ui/kit';
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+export default function Home() {
+  const { race, role, setRole, results } = useRace();
+  const finished = results.rows.filter((r) => r.status === 'finished').length;
+  const started = new Set(results.rows.filter((r) => r.startAt !== undefined).map((r) => r.heatId)).size;
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
+    <Screen>
+      <View style={s.head}>
+        <H1>{race.name}</H1>
+        <P muted>
+          {race.venue}. {race.entries.length} teams, {race.heats.length} heats, 5 lanes.
+        </P>
+      </View>
+
+      <View style={s.counts}>
+        <Count n={started} of={race.heats.length} label="heats started" />
+        <Count n={finished} of={race.entries.length} label="teams finished" />
+      </View>
+
+      <Btn label="Finish line" big onPress={() => router.push('/finish')} />
+      <Btn label="Start a heat" onPress={() => router.push('/start')} />
+      <Btn label="Live results" onPress={() => router.push('/results')} />
+      <Btn label="Phone check" kind="plain" onPress={() => router.push('/check')} />
+
+      <View style={s.role}>
+        <Text style={s.roleLabel}>You are the</Text>
+        <View style={s.roleRow}>
+          <Btn
+            label="Timekeeper"
+            kind={role === 'judge' ? 'primary' : 'plain'}
+            style={s.roleBtn}
+            onPress={() => setRole('judge')}
+          />
+          <Btn
+            label="Head judge"
+            kind={role === 'head_judge' ? 'primary' : 'plain'}
+            style={s.roleBtn}
+            onPress={() => setRole('head_judge')}
+          />
+        </View>
+        <P muted>Rehearsal mode with fake teams. Later this comes from your QR code link.</P>
+      </View>
+    </Screen>
   );
 }
 
-export default function HomeScreen() {
+function Count({ n, of, label }: { n: number; of: number; label: string }) {
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
-
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+    <View style={s.count}>
+      <Text style={s.countN}>
+        {n}
+        <Text style={s.countOf}> of {of}</Text>
+      </Text>
+      <Text style={s.countLabel}>{label}</Text>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
-  },
+const s = StyleSheet.create({
+  head: { gap: 4 },
+  counts: { flexDirection: 'row', gap: 12 },
+  count: { flex: 1, borderWidth: 2, borderColor: C.line, borderRadius: 8, padding: 12 },
+  countN: { fontSize: 32, fontWeight: '800', color: C.text, fontVariant: ['tabular-nums'] },
+  countOf: { fontSize: 18, fontWeight: '700', color: C.muted },
+  countLabel: { fontSize: 16, color: C.text },
+  role: { gap: 8, marginTop: 8 },
+  roleLabel: { fontSize: 18, fontWeight: '700', color: C.text },
+  roleRow: { flexDirection: 'row', gap: 12 },
+  roleBtn: { flex: 1 },
 });

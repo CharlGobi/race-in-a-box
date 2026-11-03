@@ -1,4 +1,4 @@
-This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
+This is an Expo app that runs on the web for volunteers and in Expo Go for previews. Product brief: docs/prd-v2.md. Plan: docs/phase-1-plan.md. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
 
 ## Expo has changed — do not trust your training data
 

@@ -1,56 +1,36 @@
-# Welcome to your Expo app 👋
+# Race in a Box
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Offline first race timing for hybrid fitness races. One Expo codebase runs as a web link for volunteers and in Expo Go for previews on a phone. The product brief is `docs/prd-v2.md`.
 
-## Get started
+## What works now
 
-1. Install dependencies
+1. Gobi Hybrid Games template: T2M, T2W, T2X, R4M, R4W, R4X, 8 stations, runs of 3 laps of 300 m.
+2. Rehearsal race with 60 fake teams in 12 heats of 5 lanes.
+3. Start a heat with one tap, and undo it if no team has finished.
+4. Finish line: tap as a team crosses to save the time, then type the number. Times that are waiting for a number survive a phone call or a crash.
+5. Every tap is an append only timing event saved on the phone first (IndexedDB on the web, AsyncStorage in Expo Go).
+6. Live results by division, built from the event log alone. Athletes who chose it show as initials.
+7. Head judge corrections win over judges. Two phones more than 2 seconds apart on one finish raise a flag.
+8. Phone check screen and a one tap export of everything on the phone.
 
-   ```bash
-   npm install
-   ```
+Not built yet: the server, so nothing is sent off the phone. See `docs/phase-1-plan.md`.
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Run it
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+```bash
+npm test
+```
 
-### Other setup steps
+```bash
+npx expo start
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+Scan the QR code with Expo Go on your phone. Phone and computer must be on the same Wi-Fi.
 
-## Learn more
+## Phone preview link
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Every push to `main` runs the tests and publishes the web app to GitHub Pages. Turn it on once under Settings, Pages, Source: GitHub Actions. The link is `https://<your-user>.github.io/<repo-name>/`.
