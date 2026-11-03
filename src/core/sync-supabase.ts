@@ -103,24 +103,25 @@ export class SupabaseTransport implements SyncTransport {
   }
 }
 
-type RawSnapshot = {
-  link: RaceSnapshot['link'];
-  race: Omit<Race, 'template' | 'entries' | 'heats'>;
+export type RawRace = {
+  race: Omit<Race, 'template' | 'entries' | 'heats'> & { raceDate?: string; status?: string };
   divisions: Race['template']['divisions'];
   segments: Race['template']['segments'];
   entries: Omit<Race['entries'][number], 'members'>[];
   heats: { id: string; number: number; startAt: number | string; slots: { lane: number; entryId: string }[] }[];
 };
 
-export async function loadRaceSnapshot(cfg: ServerConfig, token: string): Promise<RaceSnapshot> {
-  const s = await rpc<RawSnapshot>(cfg, 'race_snapshot', { p_token: token });
+/** Turn the database's race_json shape into the app's Race. */
+export function raceFromJson(s: RawRace): Race {
   return {
-    link: s.link,
-    race: {
-      ...s.race,
-      template: { id: 'server', name: s.race.name, divisions: s.divisions, segments: s.segments, targets: [] },
-      entries: s.entries.map((e) => ({ ...e, members: [] })),
-      heats: s.heats.map((h) => ({ ...h, startAt: Number(h.startAt) })),
-    },
+    ...s.race,
+    template: { id: 'server', name: s.race.name, divisions: s.divisions, segments: s.segments, targets: [] },
+    entries: s.entries.map((e) => ({ ...e, members: [] })),
+    heats: s.heats.map((h) => ({ ...h, startAt: Number(h.startAt) })),
   };
+}
+
+export async function loadRaceSnapshot(cfg: ServerConfig, token: string): Promise<RaceSnapshot> {
+  const s = await rpc<RawRace & { link: RaceSnapshot['link'] }>(cfg, 'race_snapshot', { p_token: token });
+  return { link: s.link, race: raceFromJson(s) };
 }

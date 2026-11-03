@@ -28,6 +28,7 @@ export default function Home() {
       <Btn label="Start a heat" onPress={() => router.push('/start')} />
       <Btn label="Live results" onPress={() => router.push('/results')} />
       <Btn label="Phone check" kind="plain" onPress={() => router.push('/check')} />
+      <Btn label="Organiser" kind="plain" onPress={() => router.push('/admin')} />
 
       {mode.kind === 'live' ? (
         <View style={s.role}>

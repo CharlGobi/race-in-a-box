@@ -15,7 +15,9 @@ Offline first race timing for hybrid fitness races. One Expo codebase runs as a 
 9. Server in `supabase/migrations`: row level security on every table, judge links, append only timing log.
 10. Live mode: open `/l/<token>` and the phone syncs every 5 seconds. With no signal it keeps everything and sends it later.
 
-Not built yet: the organiser screens for signing in, building a race and making links. See `docs/phase-1-plan.md`.
+11. Organiser screens at `/admin`: sign in by email link, set up the gym, create a race from a pasted team list, build heats with a kit clash warning, make judge links with a QR code and WhatsApp button, switch links off, and watch finishes come in.
+
+See `docs/phase-1-plan.md` for what comes next.
 
 ## Run it
 
@@ -39,7 +41,8 @@ Scan the QR code with Expo Go on your phone. Phone and computer must be on the s
 2. In GitHub, Settings, Secrets and variables, Actions:
    1. Variables: `SUPABASE_URL` (Project URL) and `SUPABASE_ANON_KEY` (publishable or anon key).
    2. Secret: `SUPABASE_DB_URL` (Connect, Session pooler connection string with the password filled in).
-3. Run the Database workflow once from the Actions tab. After that it runs on every merge that changes a migration.
+3. In Supabase, Authentication, URL Configuration: set Site URL to `https://charlgobi.github.io/race-in-a-box/` and add `https://charlgobi.github.io/race-in-a-box/**` under Redirect URLs. Without this the sign in email link goes nowhere.
+4. Run the Database workflow once from the Actions tab. After that it runs on every merge that changes a migration.
 
 ## Phone preview link
 

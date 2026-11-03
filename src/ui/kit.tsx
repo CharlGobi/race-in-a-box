@@ -1,7 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import type { ReactNode } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import type { StyleProp, ViewStyle } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import type { StyleProp, TextInputProps, ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useRace } from '@/app-state/race-context';
@@ -25,11 +25,12 @@ export function tap() {
   if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
 }
 
-export function Screen({ children, scroll = true }: { children: ReactNode; scroll?: boolean }) {
+/** status: the save bar for timing screens. Organiser pages leave it off. */
+export function Screen({ children, scroll = true, status = true }: { children: ReactNode; scroll?: boolean; status?: boolean }) {
   const body = <View style={s.inner}>{children}</View>;
   return (
     <SafeAreaView style={s.safe} edges={['bottom', 'left', 'right']}>
-      <SaveStatus />
+      {status ? <SaveStatus /> : null}
       {scroll ? <ScrollView contentContainerStyle={s.scroll}>{body}</ScrollView> : body}
     </SafeAreaView>
   );
@@ -92,6 +93,21 @@ export function Btn({ label, onPress, kind = 'primary', big, disabled, style, hi
   );
 }
 
+export function Field({ label, help, ...input }: { label: string; help?: string } & TextInputProps) {
+  return (
+    <View style={s.field}>
+      <Text style={s.fieldLabel}>{label}</Text>
+      <TextInput
+        accessibilityLabel={label}
+        placeholderTextColor={C.muted}
+        {...input}
+        style={[s.input, input.multiline && s.inputMulti, input.style]}
+      />
+      {help ? <Text style={s.fieldHelp}>{help}</Text> : null}
+    </View>
+  );
+}
+
 export function H1({ children }: { children: ReactNode }) {
   return <Text style={s.h1}>{children}</Text>;
 }
@@ -118,6 +134,11 @@ const s = StyleSheet.create({
   btn: { borderRadius: 8, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },
   btnPlain: { borderWidth: 2, borderColor: C.line },
   btnText: { fontWeight: '800', textAlign: 'center' },
+  field: { gap: 6 },
+  fieldLabel: { fontSize: 18, fontWeight: '800', color: C.text },
+  fieldHelp: { fontSize: 15, color: C.muted },
+  input: { minHeight: 52, borderWidth: 2, borderColor: C.line, borderRadius: 8, paddingHorizontal: 12, fontSize: 18, color: C.text, backgroundColor: C.bg },
+  inputMulti: { minHeight: 180, paddingVertical: 10, textAlignVertical: 'top', fontFamily: Platform.select({ web: 'monospace', default: undefined }) },
   h1: { fontSize: 28, fontWeight: '800', color: C.text },
   p: { fontSize: 18, lineHeight: 26, color: C.text },
   notice: { backgroundColor: C.warnBg, borderWidth: 2, borderColor: C.warn, borderRadius: 8, padding: 12 },

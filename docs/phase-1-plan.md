@@ -49,14 +49,26 @@ Hosting: Supabase, London region (decided 3 November 2026).
 
 The phone opens `/l/<token>`, saves the race on the phone, and works with no signal from then on.
 
+## Step 3 done: organiser screens
+
+| PRD | Status |
+|---|---|
+| 6A Org signup with email magic link | Done at `/admin` |
+| 6B Race builder | Gobi template only. Building a custom format is next |
+| 6C Entries | Paste a team list (number, name, division). Duplicates and bad lines are named with their line number. CSV and XLSX upload with column mapping is next |
+| 6D Heat builder and kit clash warning | Done, by division, with a last finish estimate |
+| 6E Links and QR codes | Done. Timekeeper and head judge links, QR, WhatsApp share, switch off |
+| 6J Results | Organiser race page shows progress and the fastest teams. Public results page is next |
+
+Every organiser write goes through one database function, so a race is saved whole or not at all.
+
 ## Next steps, in PRD order
 
-1. Organiser sign in by magic link, create a gym, create a race, and make judge links with a QR code.
-2. Race builder screens and saved templates.
-3. Entries import from CSV and XLSX with column mapping.
-4. Penalty, DNF, DNS, DSQ screens, protest window, one tap delay for later heats, head judge takeover screen.
-5. Results page for the public, share card, visitor capture.
-6. Volunteers, planning, owner console, billing, privacy.
+1. Race builder for any format, and saved templates.
+2. Entries upload from CSV and XLSX with column mapping. Edit, swap and move entries.
+3. Penalty, DNF, DNS, DSQ screens, protest window, one tap delay for later heats, head judge takeover screen.
+4. Results page for the public, share card, visitor capture.
+5. Volunteers, planning, owner console, billing, privacy.
 
 ## Data model
 
