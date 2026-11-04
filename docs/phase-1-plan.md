@@ -54,7 +54,7 @@ The phone opens `/l/<token>`, saves the race on the phone, and works with no sig
 | PRD | Status |
 |---|---|
 | 6A Org signup with email magic link | Done at `/admin` |
-| 6B Race builder | Gobi template only. Building a custom format is next |
+| 6B Race builder | Done in step 4 below |
 | 6C Entries | Paste a team list (number, name, division). Duplicates and bad lines are named with their line number. CSV and XLSX upload with column mapping is next |
 | 6D Heat builder and kit clash warning | Done, by division, with a last finish estimate |
 | 6E Links and QR codes | Done. Timekeeper and head judge links, QR, WhatsApp share, switch off |
@@ -62,13 +62,59 @@ The phone opens `/l/<token>`, saves the race on the phone, and works with no sig
 
 Every organiser write goes through one database function, so a race is saved whole or not at all.
 
+## Step 4 done: race builder
+
+| PRD | Status |
+|---|---|
+| 4 Entry types | Solo, team or relay per division, with team size. Solo must be 1 |
+| 4 Targets by division | Each run or station has one target for everyone, or a target and weight per division |
+| 4 Team rules | Per station: split as they like, share the work, or each does it all |
+| 6B Build a race from segments | Add, name, reorder and remove runs, stations and rests. One tap puts a run before every station |
+| 6B Save and clone templates | Saved per gym in `race_templates`, with row level security. Built in: Gobi Hybrid Games and a solo sim |
+| 6B Test: Gobi format from scratch | Automated test builds it with the builder steps and matches the shipped template |
+| 6B Test: solo, 16 segments, different weights | Automated test, and checked by hand in a phone browser down to the weights in the database |
+| N No HYROX in any template | Checked in the app and again in the database when saving |
+
+## Step 5 done: entries
+
+| PRD | Status |
+|---|---|
+| 6C Import CSV or XLSX with column mapping | Done. Columns are guessed from the headings and can be changed. Division names in the file are matched to the race's divisions. Numbers can be given out for you |
+| 6C Solo athlete or team | First and last name columns for solo, athlete columns for teams, with a warning when a team has the wrong number of people |
+| 6C Manual add, edit, swap athlete, move division | Done on the race page. A late entry can go into a heat. An entry with times can not be removed |
+| 6C Test: 150 solo and 60 team entries | Automated, the team file as a real .xlsx. Also checked by hand: 60 teams uploaded through the file picker |
+| 6C Reject duplicates with a clear message | Duplicate numbers and the same name twice in a division, each with its spreadsheet row |
+| N Collect the minimum | Athlete names stay with the organiser. Judge phones get team names only. A swapped out athlete is deleted |
+
+Judge phones reload the race every minute while they have signal, so late entries and edits reach them.
+
+Known gap: a late entry can take a lane past the race's lane count. The heat builder screen in a later step will show and fix that.
+
+## Step 6 done: head judge
+
+| PRD | Status |
+|---|---|
+| 6F Penalties, DNF, DNS, DSQ with reason | Head judge screen. Every change is a new event and can be undone |
+| 6F Protest window | Each heat locks a set time after its last result (15 minutes unless the organiser changes it), or when the head judge locks it. After that, changes from timekeepers are kept in the log, not used, and shown to the head judge |
+| 6F One tap delay for all later heats | Moves every heat that has not started. Start screens show the new times |
+| 6F Second device, gaps flagged | The head judge picks one of the times and the flag clears |
+| 6F Head judge takeover | The phones list shows when each phone last tapped and sent. Head judge taps count over timekeepers' |
+| 6F Correct a time | Type minutes and seconds |
+
+## Step 7 done: public results
+
+| PRD | Status |
+|---|---|
+| 6J Live results page and embeddable widget, by division | `/r/<link>` for everyone, `/r/<link>?embed=1` for a gym's website. Refreshes every 20 seconds. The organiser can hide results |
+| 6J Initials if chosen | Solo athletes who asked show as initials. Athlete names and phone ids never reach the public page |
+| 6J Share card with time, rank, Join a free class | Done. Sponsor logos wait for sponsors in the data model |
+| 6K Visitor capture | A Book my free class form on the share card, with a yes to be contacted. The gym sees the list on the race page |
+| 6J Cache at the edge, 500 people at once | Not done yet. Needs the live Supabase project to measure. A static snapshot on a CDN is the likely answer |
+
 ## Next steps, in PRD order
 
-1. Race builder for any format, and saved templates.
-2. Entries upload from CSV and XLSX with column mapping. Edit, swap and move entries.
-3. Penalty, DNF, DNS, DSQ screens, protest window, one tap delay for later heats, head judge takeover screen.
-4. Results page for the public, share card, visitor capture.
-5. Volunteers, planning, owner console, billing, privacy.
+1. Load test the results page with 500 people once Supabase is live, and add edge caching.
+2. Volunteers, planning, owner console, billing, privacy.
 
 ## Data model
 

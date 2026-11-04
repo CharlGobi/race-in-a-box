@@ -5,15 +5,17 @@ import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Linking, Platform, Share, StyleSheet, Text, View } from 'react-native';
 
 import { adminRpc, appUrl } from '@/admin/client';
+import { EntriesPanel } from '@/admin/entries-panel';
+import { PublicBox } from '@/admin/public-box';
 import type { AdminError } from '@/admin/client';
 import { deriveResults, formatElapsed } from '@/core/results';
 import { raceFromJson } from '@/core/sync-supabase';
 import type { RawRace } from '@/core/sync-supabase';
 import type { TimingEvent } from '@/core/types';
-import { Btn, C, Field, H1, Notice, P, Screen } from '@/ui/kit';
+import { Btn, C, Field, H1, Notice, NumberField, P, Screen } from '@/ui/kit';
 
 type Link = { id: string; role: string; label: string; expiresAt: string; revokedAt: string | null };
-type Admin = RawRace & { canEdit: boolean; links: Link[]; events: TimingEvent[] };
+type Admin = RawRace & { canEdit: boolean; links: Link[]; events: TimingEvent[]; members?: Record<string, string[]> };
 
 const ROLE_NAME: Record<string, string> = { judge: 'Timekeeper', head_judge: 'Head judge', volunteer: 'Volunteer', helper: 'Helper' };
 
@@ -61,6 +63,7 @@ export default function RaceAdmin() {
   const finished = results.rows.filter((r) => r.status === 'finished');
   const started = new Set(results.rows.filter((r) => r.startAt !== undefined).map((r) => r.heatId)).size;
   const disagree = results.flags.filter((f) => f.kind === 'devices_disagree').length;
+  const timedEntryIds = new Set(data.events.flatMap((e) => (e.entryId ? [e.entryId] : [])));
   const fastest = [...finished].sort((a, b) => (a.elapsedMs ?? 0) - (b.elapsedMs ?? 0)).slice(0, 3);
 
   return (
@@ -86,6 +89,10 @@ export default function RaceAdmin() {
         <Btn label="Refresh" kind="plain" onPress={load} />
       </View>
 
+      <PublicBox raceId={race.id} canEdit={data.canEdit} tick={tick} />
+
+      {data.canEdit ? <ProtestWindow raceId={race.id} value={race.protestWindowMin ?? 15} onSaved={load} /> : null}
+
       {data.canEdit ? <MakeLink raceId={race.id} onMade={load} /> : null}
 
       <Text style={s.section}>Links</Text>
@@ -93,7 +100,36 @@ export default function RaceAdmin() {
       {data.links.map((l) => (
         <LinkRow key={l.id} link={l} now={loadedAt} canEdit={data.canEdit} onChange={load} />
       ))}
+
+      <EntriesPanel race={race} members={data.members ?? {}} timedEntryIds={timedEntryIds} canEdit={data.canEdit} onChange={load} />
     </Screen>
+  );
+}
+
+function ProtestWindow({ raceId, value, onSaved }: { raceId: string; value: number; onSaved: () => void }) {
+  const [mins, setMins] = useState<number | undefined>(value);
+  const [msg, setMsg] = useState<string | null>(null);
+  return (
+    <View style={s.box}>
+      <Text style={s.boxTitle}>Protest window</Text>
+      <Text style={s.boxText}>Each heat locks this many minutes after its last result. After that only the head judge can change it.</Text>
+      <NumberField label="Minutes" value={mins} onValue={setMins} allowEmpty />
+      <Btn
+        label="Save"
+        kind="plain"
+        disabled={mins === undefined || mins < 0 || mins > 240 || mins === value}
+        onPress={async () => {
+          try {
+            await adminRpc('update_race_settings', { p_race: raceId, p_protest_window_min: Math.round(mins!) });
+            setMsg(`Saved. Heats lock ${Math.round(mins!)} minutes after their last result.`);
+            onSaved();
+          } catch (e) {
+            setMsg((e as AdminError).message);
+          }
+        }}
+      />
+      {msg ? <Text style={s.boxText}>{msg}</Text> : null}
+    </View>
   );
 }
 

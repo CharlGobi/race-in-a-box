@@ -63,6 +63,13 @@ export default function Results() {
               {r.entry.displayName}
             </Text>
             <Text style={s.members}>{members(r)}</Text>
+            {r.penalties.length ? (
+              <Text style={s.members}>
+                Penalty {formatElapsed(r.penaltyMs)}: {r.penalties.map((p) => p.reason).join(', ')}
+              </Text>
+            ) : null}
+            {r.statusReason ? <Text style={s.members}>{r.statusReason}</Text> : null}
+            {r.status === 'finished' && !r.locked ? <Text style={s.members}>Not final yet</Text> : null}
           </View>
           <Text style={s.time}>
             {r.status === 'finished'
