@@ -54,7 +54,7 @@ The phone opens `/l/<token>`, saves the race on the phone, and works with no sig
 | PRD | Status |
 |---|---|
 | 6A Org signup with email magic link | Done at `/admin` |
-| 6B Race builder | Gobi template only. Building a custom format is next |
+| 6B Race builder | Done in step 4 below |
 | 6C Entries | Paste a team list (number, name, division). Duplicates and bad lines are named with their line number. CSV and XLSX upload with column mapping is next |
 | 6D Heat builder and kit clash warning | Done, by division, with a last finish estimate |
 | 6E Links and QR codes | Done. Timekeeper and head judge links, QR, WhatsApp share, switch off |
@@ -62,13 +62,25 @@ The phone opens `/l/<token>`, saves the race on the phone, and works with no sig
 
 Every organiser write goes through one database function, so a race is saved whole or not at all.
 
+## Step 4 done: race builder
+
+| PRD | Status |
+|---|---|
+| 4 Entry types | Solo, team or relay per division, with team size. Solo must be 1 |
+| 4 Targets by division | Each run or station has one target for everyone, or a target and weight per division |
+| 4 Team rules | Per station: split as they like, share the work, or each does it all |
+| 6B Build a race from segments | Add, name, reorder and remove runs, stations and rests. One tap puts a run before every station |
+| 6B Save and clone templates | Saved per gym in `race_templates`, with row level security. Built in: Gobi Hybrid Games and a solo sim |
+| 6B Test: Gobi format from scratch | Automated test builds it with the builder steps and matches the shipped template |
+| 6B Test: solo, 16 segments, different weights | Automated test, and checked by hand in a phone browser down to the weights in the database |
+| N No HYROX in any template | Checked in the app and again in the database when saving |
+
 ## Next steps, in PRD order
 
-1. Race builder for any format, and saved templates.
-2. Entries upload from CSV and XLSX with column mapping. Edit, swap and move entries.
-3. Penalty, DNF, DNS, DSQ screens, protest window, one tap delay for later heats, head judge takeover screen.
-4. Results page for the public, share card, visitor capture.
-5. Volunteers, planning, owner console, billing, privacy.
+1. Entries upload from CSV and XLSX with column mapping. Edit, swap and move entries.
+2. Penalty, DNF, DNS, DSQ screens, protest window, one tap delay for later heats, head judge takeover screen.
+3. Results page for the public, share card, visitor capture.
+4. Volunteers, planning, owner console, billing, privacy.
 
 ## Data model
 

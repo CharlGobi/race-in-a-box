@@ -1,5 +1,5 @@
-import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 
 import { adminRpc, AdminError, sendSignInLink, supabase, useSession } from '@/admin/client';
@@ -80,6 +80,8 @@ function Gym({ email }: { email: string }) {
     setError(null);
     setTick((n) => n + 1);
   };
+  // Reload the race list when coming back from a new race.
+  useFocusEffect(useCallback(() => setTick((n) => n + 1), []));
 
   useEffect(() => {
     let alive = true;

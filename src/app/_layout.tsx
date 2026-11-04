@@ -32,6 +32,8 @@ function Nav() {
       <Stack.Screen name="admin/index" options={{ title: 'Organiser' }} />
       <Stack.Screen name="admin/new-race" options={{ title: 'New race' }} />
       <Stack.Screen name="admin/race/[id]" options={{ title: 'Race' }} />
+      <Stack.Screen name="admin/formats" options={{ title: 'Formats' }} />
+      <Stack.Screen name="admin/format" options={{ title: 'Format' }} />
     </Stack>
   );
 }

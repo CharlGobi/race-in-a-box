@@ -15,6 +15,9 @@ export type Division = {
   label: string;
   gender?: 'M' | 'W' | 'X';
   level?: 'open' | 'pro';
+  /** Solo athlete, a team racing together, or a relay that takes turns. */
+  entryKind?: 'solo' | 'team' | 'relay';
+  teamSize?: number;
 };
 
 export type Segment = {
@@ -24,6 +27,8 @@ export type Segment = {
   name: string;
   metric: 'distance' | 'reps' | 'calories' | 'time';
   timed: boolean;
+  /** For teams: share the work, everyone does it all, or split it as they like. */
+  teamRule?: 'shared' | 'each' | 'split';
 };
 
 export type SegmentTarget = {

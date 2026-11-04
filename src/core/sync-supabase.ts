@@ -107,6 +107,7 @@ export type RawRace = {
   race: Omit<Race, 'template' | 'entries' | 'heats'> & { raceDate?: string; status?: string };
   divisions: Race['template']['divisions'];
   segments: Race['template']['segments'];
+  targets?: { segmentId: string; divisionId: string; value: number | string; unit: string; weight?: number | string | null }[];
   entries: Omit<Race['entries'][number], 'members'>[];
   heats: { id: string; number: number; startAt: number | string; slots: { lane: number; entryId: string }[] }[];
 };
@@ -115,7 +116,19 @@ export type RawRace = {
 export function raceFromJson(s: RawRace): Race {
   return {
     ...s.race,
-    template: { id: 'server', name: s.race.name, divisions: s.divisions, segments: s.segments, targets: [] },
+    template: {
+      id: 'server',
+      name: (s.race as { formatName?: string }).formatName || s.race.name,
+      divisions: s.divisions,
+      segments: s.segments,
+      targets: (s.targets ?? []).map((x) => ({
+        segmentId: x.segmentId,
+        divisionId: x.divisionId,
+        value: Number(x.value),
+        unit: x.unit,
+        ...(x.weight !== null && x.weight !== undefined ? { weight: Number(x.weight) } : {}),
+      })),
+    },
     entries: s.entries.map((e) => ({ ...e, members: [] })),
     heats: s.heats.map((h) => ({ ...h, startAt: Number(h.startAt) })),
   };

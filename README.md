@@ -17,6 +17,8 @@ Offline first race timing for hybrid fitness races. One Expo codebase runs as a 
 
 11. Organiser screens at `/admin`: sign in by email link, set up the gym, create a race from a pasted team list, build heats with a kit clash warning, make judge links with a QR code and WhatsApp button, switch links off, and watch finishes come in.
 
+12. Race builder at `/admin/formats`: any mix of solo, team and relay divisions, runs and stations in any order, targets and weights per division, saved per gym. Ships with the Gobi Hybrid Games format and a solo sim.
+
 See `docs/phase-1-plan.md` for what comes next.
 
 ## Run it
