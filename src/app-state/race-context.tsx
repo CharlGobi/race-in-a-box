@@ -18,6 +18,8 @@ import type { LinkError, RaceSnapshot } from '@/core/sync-supabase';
 import type { Race, Role, TimingEvent, TimingPayload } from '@/core/types';
 
 const SYNC_EVERY_MS = 5000;
+// How often a judge phone reloads the race itself, so late entries and edits arrive.
+const RACE_REFRESH_MS = 60_000;
 
 export type Mode = { kind: 'rehearsal' } | { kind: 'live'; token: string; link: RaceSnapshot['link'] };
 
@@ -81,6 +83,7 @@ export function RaceProvider({ children }: { children: ReactNode }) {
   const factoryRef = useRef<EventFactory | null>(null);
   const transportRef = useRef<SupabaseTransport | null>(null);
   const syncing = useRef(false);
+  const raceLoadedAt = useRef(0);
 
   const [ready, setReady] = useState(false);
   const [mode, setMode] = useState<Mode>({ kind: 'rehearsal' });
@@ -142,10 +145,22 @@ export function RaceProvider({ children }: { children: ReactNode }) {
       const st = await syncOnce(storeRef.current, t, race.id);
       setSync({ online: st.online, lastSyncAt: st.lastSyncAt, problem: st.problem });
       setEvents(await storeRef.current.all(race.id));
+      if (st.online && mode.kind === 'live' && server && Date.now() - raceLoadedAt.current > RACE_REFRESH_MS) {
+        raceLoadedAt.current = Date.now();
+        try {
+          const snap = await loadRaceSnapshot(server, mode.token);
+          if (snap.race.id === race.id && JSON.stringify(snap.race) !== JSON.stringify(race)) {
+            setRace(snap.race);
+            await AsyncStorage.setItem(K.snapshot, JSON.stringify(snap));
+          }
+        } catch {
+          // Keep the race the phone already has. The next minute tries again.
+        }
+      }
     } finally {
       syncing.current = false;
     }
-  }, [race.id]);
+  }, [race, mode]);
 
   // Sync every few seconds, when the app comes back to the front, and when the browser reconnects.
   useEffect(() => {

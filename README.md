@@ -19,6 +19,8 @@ Offline first race timing for hybrid fitness races. One Expo codebase runs as a 
 
 12. Race builder at `/admin/formats`: any mix of solo, team and relay divisions, runs and stations in any order, targets and weights per division, saved per gym. Ships with the Gobi Hybrid Games format and a solo sim.
 
+13. Entries from a CSV or Excel file with column and division matching, and on the race page: find, edit, swap an athlete, move division, add a late entry, remove.
+
 See `docs/phase-1-plan.md` for what comes next.
 
 ## Run it

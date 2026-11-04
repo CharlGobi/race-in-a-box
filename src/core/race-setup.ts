@@ -61,7 +61,7 @@ export type SetupPayload = {
   divisions: { code: string; label: string; gender?: string; level?: string; entryKind: string; teamSize: number }[];
   segments: { order: number; kind: string; name: string; metric: string; timed: boolean; teamRule?: string }[];
   targets: { segmentOrder: number; divisionCode: string; value: number; unit: string; weight?: number }[];
-  entries: { code: string; displayName: string; divisionCode: string; kind: 'team' | 'solo' }[];
+  entries: { code: string; displayName: string; divisionCode: string; kind: 'team' | 'solo'; members?: string[] }[];
   heats: { number: number; startAt: number; slots: { lane: number; entryCode: string }[] }[];
 };
 
@@ -69,7 +69,7 @@ export type SetupPayload = {
 export function buildSetupPayload(
   template: RaceTemplate,
   info: { name: string; raceDate: string; venue: string },
-  teams: TeamLine[],
+  teams: (TeamLine & { members?: string[] })[],
   plan: HeatPlan,
 ): SetupPayload {
   const divByCode = new Map(template.divisions.map((d) => [d.code, d]));

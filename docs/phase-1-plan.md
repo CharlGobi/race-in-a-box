@@ -75,12 +75,26 @@ Every organiser write goes through one database function, so a race is saved who
 | 6B Test: solo, 16 segments, different weights | Automated test, and checked by hand in a phone browser down to the weights in the database |
 | N No HYROX in any template | Checked in the app and again in the database when saving |
 
+## Step 5 done: entries
+
+| PRD | Status |
+|---|---|
+| 6C Import CSV or XLSX with column mapping | Done. Columns are guessed from the headings and can be changed. Division names in the file are matched to the race's divisions. Numbers can be given out for you |
+| 6C Solo athlete or team | First and last name columns for solo, athlete columns for teams, with a warning when a team has the wrong number of people |
+| 6C Manual add, edit, swap athlete, move division | Done on the race page. A late entry can go into a heat. An entry with times can not be removed |
+| 6C Test: 150 solo and 60 team entries | Automated, the team file as a real .xlsx. Also checked by hand: 60 teams uploaded through the file picker |
+| 6C Reject duplicates with a clear message | Duplicate numbers and the same name twice in a division, each with its spreadsheet row |
+| N Collect the minimum | Athlete names stay with the organiser. Judge phones get team names only. A swapped out athlete is deleted |
+
+Judge phones reload the race every minute while they have signal, so late entries and edits reach them.
+
+Known gap: a late entry can take a lane past the race's lane count. The heat builder screen in a later step will show and fix that.
+
 ## Next steps, in PRD order
 
-1. Entries upload from CSV and XLSX with column mapping. Edit, swap and move entries.
-2. Penalty, DNF, DNS, DSQ screens, protest window, one tap delay for later heats, head judge takeover screen.
-3. Results page for the public, share card, visitor capture.
-4. Volunteers, planning, owner console, billing, privacy.
+1. Penalty, DNF, DNS, DSQ screens, protest window, one tap delay for later heats, head judge takeover screen.
+2. Results page for the public, share card, visitor capture.
+3. Volunteers, planning, owner console, billing, privacy.
 
 ## Data model
 
