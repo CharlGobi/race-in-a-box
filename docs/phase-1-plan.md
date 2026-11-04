@@ -90,11 +90,31 @@ Judge phones reload the race every minute while they have signal, so late entrie
 
 Known gap: a late entry can take a lane past the race's lane count. The heat builder screen in a later step will show and fix that.
 
+## Step 6 done: head judge
+
+| PRD | Status |
+|---|---|
+| 6F Penalties, DNF, DNS, DSQ with reason | Head judge screen. Every change is a new event and can be undone |
+| 6F Protest window | Each heat locks a set time after its last result (15 minutes unless the organiser changes it), or when the head judge locks it. After that, changes from timekeepers are kept in the log, not used, and shown to the head judge |
+| 6F One tap delay for all later heats | Moves every heat that has not started. Start screens show the new times |
+| 6F Second device, gaps flagged | The head judge picks one of the times and the flag clears |
+| 6F Head judge takeover | The phones list shows when each phone last tapped and sent. Head judge taps count over timekeepers' |
+| 6F Correct a time | Type minutes and seconds |
+
+## Step 7 done: public results
+
+| PRD | Status |
+|---|---|
+| 6J Live results page and embeddable widget, by division | `/r/<link>` for everyone, `/r/<link>?embed=1` for a gym's website. Refreshes every 20 seconds. The organiser can hide results |
+| 6J Initials if chosen | Solo athletes who asked show as initials. Athlete names and phone ids never reach the public page |
+| 6J Share card with time, rank, Join a free class | Done. Sponsor logos wait for sponsors in the data model |
+| 6K Visitor capture | A Book my free class form on the share card, with a yes to be contacted. The gym sees the list on the race page |
+| 6J Cache at the edge, 500 people at once | Not done yet. Needs the live Supabase project to measure. A static snapshot on a CDN is the likely answer |
+
 ## Next steps, in PRD order
 
-1. Penalty, DNF, DNS, DSQ screens, protest window, one tap delay for later heats, head judge takeover screen.
-2. Results page for the public, share card, visitor capture.
-3. Volunteers, planning, owner console, billing, privacy.
+1. Load test the results page with 500 people once Supabase is live, and add edge caching.
+2. Volunteers, planning, owner console, billing, privacy.
 
 ## Data model
 

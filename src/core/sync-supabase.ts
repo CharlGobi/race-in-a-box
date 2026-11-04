@@ -27,7 +27,7 @@ export type RaceSnapshot = {
   race: Race;
 };
 
-async function rpc<T>(cfg: ServerConfig, fn: string, body: Record<string, unknown>): Promise<T> {
+export async function rpc<T>(cfg: ServerConfig, fn: string, body: Record<string, unknown>): Promise<T> {
   const f = cfg.fetch ?? fetch;
   let res: Response;
   try {

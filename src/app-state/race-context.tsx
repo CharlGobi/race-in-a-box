@@ -32,6 +32,8 @@ type RaceState = {
   deviceId: string;
   events: TimingEvent[];
   results: Results;
+  /** Ticks every 15 seconds so heat locks and countdowns move without a tap. */
+  now: number;
   waitingToSend: number;
   serverConnected: boolean;
   online: boolean;
@@ -231,7 +233,12 @@ export function RaceProvider({ children }: { children: ReactNode }) {
     await activate(makeDemoRace(await getRehearsalStart()), 'judge', deviceId, { kind: 'rehearsal' });
   }, [activate, deviceId]);
 
-  const results = useMemo(() => deriveResults(race, events), [race, events]);
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 15_000);
+    return () => clearInterval(t);
+  }, []);
+  const results = useMemo(() => deriveResults(race, events, Math.max(now, ...events.map((e) => e.deviceTs))), [race, events, now]);
   const waitingToSend = events.filter((e) => !e.serverTs).length;
   const problem = sync.problem ? (LINK_MESSAGES as Record<string, string>)[sync.problem] ?? LINK_MESSAGES.server : undefined;
 
@@ -244,6 +251,7 @@ export function RaceProvider({ children }: { children: ReactNode }) {
     deviceId,
     events,
     results,
+    now,
     waitingToSend,
     serverConnected: mode.kind === 'live' && !!server,
     online: sync.online,
