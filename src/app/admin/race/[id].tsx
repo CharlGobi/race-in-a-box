@@ -6,6 +6,7 @@ import { ActivityIndicator, Linking, Platform, Share, StyleSheet, Text, View } f
 
 import { adminRpc, appUrl } from '@/admin/client';
 import { EntriesPanel } from '@/admin/entries-panel';
+import { PublicBox } from '@/admin/public-box';
 import type { AdminError } from '@/admin/client';
 import { deriveResults, formatElapsed } from '@/core/results';
 import { raceFromJson } from '@/core/sync-supabase';
@@ -87,6 +88,8 @@ export default function RaceAdmin() {
         ))}
         <Btn label="Refresh" kind="plain" onPress={load} />
       </View>
+
+      <PublicBox raceId={race.id} canEdit={data.canEdit} tick={tick} />
 
       {data.canEdit ? <ProtestWindow raceId={race.id} value={race.protestWindowMin ?? 15} onSaved={load} /> : null}
 
