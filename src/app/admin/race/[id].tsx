@@ -150,7 +150,7 @@ function MakeLink({ raceId, onMade }: { raceId: string; onMade: () => void }) {
         p_label: label.trim() || ROLE_NAME[role],
         p_valid_hours: 72,
       });
-      const url = appUrl(`/l/${token}`);
+      const url = appUrl(`/l?t=${token}`);
       const svg = await QRCode.toString(url, { type: 'svg', margin: 1, errorCorrectionLevel: 'M' });
       setMade({ url, qr: `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`, label: label.trim() || ROLE_NAME[role]! });
       setLabel('');

@@ -92,3 +92,13 @@ describe('section 6J: public results', () => {
     await expect(rpc(BEN, `select public.update_org_trial_url($1, 'https://x.example') as r`, [org])).rejects.toThrow(/not_allowed/);
   });
 });
+
+describe('pre race clock check', () => {
+  it('anyone can read the server time, in milliseconds', async () => {
+    const db = await freshDb();
+    const before = Date.now();
+    const t = await as(db, { anon: true }, async () => Number((await db.query<{ r: string }>('select public.server_time() as r')).rows[0]!.r));
+    expect(t).toBeGreaterThanOrEqual(before - 1000);
+    expect(t).toBeLessThanOrEqual(Date.now() + 1000);
+  });
+});
