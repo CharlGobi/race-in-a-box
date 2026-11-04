@@ -99,3 +99,18 @@ describe('section 6C: entries after the race is made', () => {
     await expect(as(db, { anon: true }, () => db.query('select public.remove_entry($1)', [e2]))).rejects.toThrow(/permission denied/);
   });
 });
+
+describe('section 6F: protest window setting', () => {
+  it('defaults to 15 minutes, can be changed by the organiser, and reaches judge phones', async () => {
+    const db = await freshDb();
+    const org = await as(db, { user: ALICE }, async () => (await db.query<{ r: string }>(`select public.create_org('Gobi', 'gobi') as r`)).rows[0]!.r);
+    const race = await as(db, { user: ALICE }, async () => (await db.query<{ r: string }>(`insert into races (org_id, name, race_date) values ($1, 'R', '2026-11-28') returning id as r`, [org])).rows[0]!.r);
+    const token = await as(db, { user: ALICE }, async () => (await db.query<{ r: string }>(`select public.create_access_link($1, 'head_judge', 'Head', 24) as r`, [race])).rows[0]!.r);
+    const snap = async () => as(db, { anon: true }, async () => (await db.query<{ r: { race: { protestWindowMin: number } } }>('select public.race_snapshot($1) as r', [token])).rows[0]!.r);
+    expect((await snap()).race.protestWindowMin).toBe(15);
+    await as(db, { user: ALICE }, () => db.query('select public.update_race_settings($1, 30)', [race]));
+    expect((await snap()).race.protestWindowMin).toBe(30);
+    await expect(as(db, { user: BEN }, () => db.query('select public.update_race_settings($1, 0)', [race]))).rejects.toThrow(/not_allowed/);
+    await expect(as(db, { user: ALICE }, () => db.query('select public.update_race_settings($1, 999)', [race]))).rejects.toThrow();
+  });
+});

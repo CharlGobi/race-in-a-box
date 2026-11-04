@@ -21,6 +21,8 @@ Offline first race timing for hybrid fitness races. One Expo codebase runs as a 
 
 13. Entries from a CSV or Excel file with column and division matching, and on the race page: find, edit, swap an athlete, move division, add a late entry, remove.
 
+14. Head judge screen: settle phones that disagree, penalties, DNF, DNS and DSQ with a reason, correct a time, delay later heats, lock a heat, and see which phones are still sending. Heats lock after a protest window the organiser sets.
+
 See `docs/phase-1-plan.md` for what comes next.
 
 ## Run it
