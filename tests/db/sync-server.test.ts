@@ -31,6 +31,8 @@ function fakeSupabase(db: PGlite, net: { online: boolean }): ServerConfig {
         if (fn === 'pull_timing_events') return (await db.query<{ e: unknown }>(`select e as pull_timing_events from ${call} e`, params)).rows;
         return (await db.query<{ r: unknown }>(`select ${call} as r`, params)).rows[0]!.r;
       });
+      // Like Supabase, a function that returns nothing answers 204 with no body.
+      if (body === null || body === '') return new Response(null, { status: 204 });
       return new Response(JSON.stringify(body), { status: 200 });
     } catch (e) {
       return new Response(JSON.stringify({ message: (e as Error).message }), { status: 400 });

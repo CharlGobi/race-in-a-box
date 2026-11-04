@@ -77,6 +77,22 @@ describe('section 6C: entries after the race is made', () => {
     expect(noHeat.heat).toBeNull();
   });
 
+  it('never puts a late entry past the lane count, and fills a gap left by a removed entry', async () => {
+    // The race was set up with 5 lanes. Heat 1 holds teams 1 and 3, and team 40 joined above.
+    const lanesOf = async () => (await db.query<{ lane: number }>('select lane from heat_slots hs join heats h on h.id = hs.heat_id where h.race_id = $1 and h.number = 1 order by lane', [race])).rows.map((r) => r.lane);
+    expect(await lanesOf()).toEqual([1, 2, 3]);
+    await rpc(ALICE, 'select public.add_entry($1, $2, $3, $4, $5::jsonb, 1) as r', [race, '51', 'Filler 4', 'T2M', '[]']);
+    await rpc(ALICE, 'select public.add_entry($1, $2, $3, $4, $5::jsonb, 1) as r', [race, '52', 'Filler 5', 'T2M', '[]']);
+    expect(await lanesOf()).toEqual([1, 2, 3, 4, 5]);
+    await expect(rpc(ALICE, 'select public.add_entry($1, $2, $3, $4, $5::jsonb, 1) as r', [race, '53', 'One too many', 'T2M', '[]'])).rejects.toThrow(/heat_full/);
+    // Free lane 4 and the next late entry takes it.
+    await rpc(ALICE, 'select public.remove_entry($1) as r', [await id('51')]);
+    await rpc(ALICE, 'select public.add_entry($1, $2, $3, $4, $5::jsonb, 1) as r', [race, '54', 'Gap filler', 'T2M', '[]']);
+    expect(await lanesOf()).toEqual([1, 2, 3, 4, 5]);
+    const lane = (await db.query<{ lane: number }>('select lane from heat_slots hs join entries e on e.id = hs.entry_id where e.code = $1 and e.race_id = $2', ['54', race])).rows[0]!.lane;
+    expect(lane).toBe(4);
+  });
+
   it('removes an entry with no times, and refuses once a time exists', async () => {
     await rpc(ALICE, 'select public.remove_entry($1) as r', [await id('41')]);
     expect((await db.query('select 1 from entries where race_id = $1 and code = $2', [race, '41'])).rows).toHaveLength(0);

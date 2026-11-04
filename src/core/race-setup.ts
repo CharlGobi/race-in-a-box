@@ -58,6 +58,7 @@ export type SetupPayload = {
   raceDate: string;
   venue: string;
   formatName: string;
+  lanes: number;
   divisions: { code: string; label: string; gender?: string; level?: string; entryKind: string; teamSize: number }[];
   segments: { order: number; kind: string; name: string; metric: string; timed: boolean; teamRule?: string }[];
   targets: { segmentOrder: number; divisionCode: string; value: number; unit: string; weight?: number }[];
@@ -87,6 +88,7 @@ export function buildSetupPayload(
   return {
     ...info,
     formatName: template.name,
+    lanes: plan.lanes,
     divisions: template.divisions.map((d) => ({
       code: d.code,
       label: d.label,

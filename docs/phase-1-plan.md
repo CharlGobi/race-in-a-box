@@ -111,10 +111,22 @@ Known gap: a late entry can take a lane past the race's lane count. The heat bui
 | 6K Visitor capture | A Book my free class form on the share card, with a yes to be contacted. The gym sees the list on the race page |
 | 6J Cache at the edge, 500 people at once | Not done yet. Needs the live Supabase project to measure. A static snapshot on a CDN is the likely answer |
 
+## Step 8 done: live test fixes and gaps
+
+Tested on the live site and Supabase project on 4 November 2026: organiser sign in by email, gym, race, judge links, finishes with the signal cut, head judge penalty, public results, share card, trial form.
+
+| Gap | Status |
+|---|---|
+| Actions that saved but showed an error | Fixed. Supabase answers 204 with no body for functions that return nothing |
+| Public page opened on an empty division | Fixed. Opens on the first division where someone has started |
+| Links answered 404 in the background on GitHub Pages | New links use `/r?s=…` and `/l?t=…`, and every fixed address gets its own page file. Old links still open |
+| Late entry past the lane count | The race keeps the lane count chosen at setup. A late entry takes the first free lane or gets "That heat is full" |
+| 6F Pre race check: clock drift, battery | Done. Each phone compares its clock with the server and shows the battery where the phone shares it |
+| 9 Results page under load | 500 requests, 50 at a time, on the Free plan: all answered, median 0.9 s, 95% within 1.5 s. Test again with a 150 entry race before a big event |
+
 ## Next steps, in PRD order
 
-1. Load test the results page with 500 people once Supabase is live, and add edge caching.
-2. Volunteers, planning, owner console, billing, privacy.
+1. Volunteers, planning, owner console, billing, privacy.
 
 ## Data model
 

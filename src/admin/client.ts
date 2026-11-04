@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 
 import { server } from '@/config';
+import { readBody } from '@/core/sync-supabase';
 
 // Organisers sign in with an email link. Judges never do: they use access links.
 // The Supabase client is only used for sign in. Data goes through the database
@@ -62,6 +63,9 @@ const MESSAGES: Record<string, string> = {
   not_allowed: 'Your account can not do that for this gym.',
   name_required: 'Give the race a name.',
   duplicate: 'That web address or number is already taken.',
+  heat_full: 'That heat is full. Pick a heat with a free lane, or leave the heat empty.',
+  unknown_heat: 'There is no heat with that number.',
+  has_times: 'This entry has times, so it can not be removed. The head judge can mark it DNS or DNF.',
 };
 
 /** Call an organiser database function as the signed in user. */
@@ -89,5 +93,5 @@ export async function adminRpc<T>(fn: string, args: Record<string, unknown>): Pr
     const key = Object.keys(MESSAGES).find((k) => message.includes(k)) ?? (message.includes('unique') ? 'duplicate' : '');
     throw new AdminError(key ? MESSAGES[key]! : message || 'The server had a problem. Try again.');
   }
-  return (await res.json()) as T;
+  return readBody<T>(res);
 }

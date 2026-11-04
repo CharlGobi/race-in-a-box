@@ -26,8 +26,8 @@ export function PublicBox({ raceId, canEdit, tick }: { raceId: string; canEdit: 
   }, [raceId, tick, mine]);
 
   if (!info) return error ? <Notice>{error}</Notice> : null;
-  const url = appUrl(`/r/${info.slug}`);
-  const embed = `<iframe src="${url}?embed=1" style="width:100%;height:700px;border:0" title="Live results"></iframe>`;
+  const url = appUrl(`/r?s=${info.slug}`);
+  const embed = `<iframe src="${url}&embed=1" style="width:100%;height:700px;border:0" title="Live results"></iframe>`;
   const copy = (text: string) => {
     if (Platform.OS === 'web' && typeof navigator !== 'undefined') navigator.clipboard?.writeText(text);
   };

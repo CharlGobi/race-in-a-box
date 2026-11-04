@@ -52,7 +52,17 @@ export async function rpc<T>(cfg: ServerConfig, fn: string, body: Record<string,
     if (res.status >= 500 || res.status === 0) throw new OfflineError();
     throw new LinkError('server');
   }
-  return (await res.json()) as T;
+  return readBody<T>(res);
+}
+
+/**
+ * Supabase answers 204 with an empty body for functions that return nothing.
+ * That is a success, not a broken reply.
+ */
+export async function readBody<T>(res: Response): Promise<T> {
+  if (res.status === 204) return null as T;
+  const text = await res.text();
+  return (text ? JSON.parse(text) : null) as T;
 }
 
 /** PostgREST returns a set of jsonb either as bare values or wrapped in the function name. */
