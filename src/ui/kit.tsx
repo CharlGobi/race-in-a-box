@@ -1,7 +1,8 @@
 import * as Haptics from 'expo-haptics';
+import { useState } from 'react';
 import type { ReactNode } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import type { StyleProp, ViewStyle } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import type { StyleProp, TextInputProps, ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useRace } from '@/app-state/race-context';
@@ -25,11 +26,12 @@ export function tap() {
   if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
 }
 
-export function Screen({ children, scroll = true }: { children: ReactNode; scroll?: boolean }) {
+/** status: the save bar for timing screens. Organiser pages leave it off. */
+export function Screen({ children, scroll = true, status = true }: { children: ReactNode; scroll?: boolean; status?: boolean }) {
   const body = <View style={s.inner}>{children}</View>;
   return (
     <SafeAreaView style={s.safe} edges={['bottom', 'left', 'right']}>
-      <SaveStatus />
+      {status ? <SaveStatus /> : null}
       {scroll ? <ScrollView contentContainerStyle={s.scroll}>{body}</ScrollView> : body}
     </SafeAreaView>
   );
@@ -92,6 +94,146 @@ export function Btn({ label, onPress, kind = 'primary', big, disabled, style, hi
   );
 }
 
+export function Field({ label, help, ...input }: { label: string; help?: string } & TextInputProps) {
+  return (
+    <View style={s.field}>
+      <Text style={s.fieldLabel}>{label}</Text>
+      <TextInput
+        accessibilityLabel={label}
+        placeholderTextColor={C.muted}
+        {...input}
+        style={[s.input, input.multiline && s.inputMulti, input.style]}
+      />
+      {help ? <Text style={s.fieldHelp}>{help}</Text> : null}
+    </View>
+  );
+}
+
+/** A row of choices where one is picked. 48 px targets, no swiping. */
+export function Choice<T extends string>({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label?: string;
+  options: { value: T; label: string }[];
+  value: T | undefined;
+  onChange: (v: T) => void;
+}) {
+  return (
+    <View style={s.field} accessibilityRole="radiogroup" accessibilityLabel={label}>
+      {label ? <Text style={s.fieldLabel}>{label}</Text> : null}
+      <View style={s.choiceRow}>
+        {options.map((o) => {
+          const on = o.value === value;
+          return (
+            <Pressable
+              key={o.value}
+              accessibilityRole="radio"
+              accessibilityState={{ selected: on }}
+              onPress={() => {
+                tap();
+                onChange(o.value);
+              }}
+              style={[s.choice, on && s.choiceOn]}>
+              <Text style={[s.choiceText, on && s.choiceTextOn]}>{o.label}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+/** Like Choice, but any number can be picked. */
+export function MultiChoice({
+  label,
+  options,
+  values,
+  onToggle,
+}: {
+  label: string;
+  options: { value: string; label: string }[];
+  values: string[];
+  onToggle: (v: string) => void;
+}) {
+  return (
+    <View style={s.field} accessibilityLabel={label}>
+      <Text style={s.fieldLabel}>{label}</Text>
+      <View style={s.choiceRow}>
+        {options.map((o) => {
+          const on = values.includes(o.value);
+          return (
+            <Pressable
+              key={o.value}
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: on }}
+              onPress={() => {
+                tap();
+                onToggle(o.value);
+              }}
+              style={[s.choice, on && s.choiceOn]}>
+              <Text style={[s.choiceText, on && s.choiceTextOn]}>{o.label}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+/** A number box that lets people type freely and reports a number once it parses. */
+export function NumberField({
+  label,
+  value,
+  onValue,
+  help,
+  allowEmpty,
+  style,
+}: {
+  label: string;
+  value: number | undefined;
+  onValue: (v: number | undefined) => void;
+  help?: string;
+  allowEmpty?: boolean;
+  style?: TextInputProps['style'];
+}) {
+  const [text, setText] = useState(value === undefined ? '' : String(value));
+  const [seen, setSeen] = useState(value);
+  if (value !== seen) {
+    // The value changed from outside, for example a division was removed.
+    setSeen(value);
+    setText(value === undefined ? '' : String(value));
+  }
+  return (
+    <Field
+      label={label}
+      help={help}
+      value={text}
+      inputMode="decimal"
+      keyboardType="decimal-pad"
+      style={style}
+      onChangeText={(t) => {
+        setText(t);
+        const clean = t.replace(',', '.').trim();
+        if (clean === '') {
+          if (allowEmpty) {
+            setSeen(undefined);
+            onValue(undefined);
+          }
+          return;
+        }
+        const n = Number(clean);
+        if (Number.isFinite(n)) {
+          setSeen(n);
+          onValue(n);
+        }
+      }}
+    />
+  );
+}
+
 export function H1({ children }: { children: ReactNode }) {
   return <Text style={s.h1}>{children}</Text>;
 }
@@ -118,6 +260,16 @@ const s = StyleSheet.create({
   btn: { borderRadius: 8, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16 },
   btnPlain: { borderWidth: 2, borderColor: C.line },
   btnText: { fontWeight: '800', textAlign: 'center' },
+  field: { gap: 6 },
+  fieldLabel: { fontSize: 18, fontWeight: '800', color: C.text },
+  fieldHelp: { fontSize: 15, color: C.muted },
+  input: { minHeight: 52, borderWidth: 2, borderColor: C.line, borderRadius: 8, paddingHorizontal: 12, fontSize: 18, color: C.text, backgroundColor: C.bg },
+  inputMulti: { minHeight: 180, paddingVertical: 10, textAlignVertical: 'top', fontFamily: Platform.select({ web: 'monospace', default: undefined }) },
+  choiceRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  choice: { minHeight: 48, minWidth: 64, paddingHorizontal: 14, borderWidth: 2, borderColor: C.line, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: C.bg },
+  choiceOn: { backgroundColor: C.text },
+  choiceText: { fontSize: 17, fontWeight: '800', color: C.text },
+  choiceTextOn: { color: '#FFFFFF' },
   h1: { fontSize: 28, fontWeight: '800', color: C.text },
   p: { fontSize: 18, lineHeight: 26, color: C.text },
   notice: { backgroundColor: C.warnBg, borderWidth: 2, borderColor: C.warn, borderRadius: 8, padding: 12 },

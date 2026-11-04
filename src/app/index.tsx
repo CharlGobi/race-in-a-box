@@ -25,9 +25,11 @@ export default function Home() {
       </View>
 
       <Btn label="Finish line" big onPress={() => router.push('/finish')} />
+      {role === 'head_judge' ? <Btn label="Head judge" kind="go" onPress={() => router.push('/judge')} /> : null}
       <Btn label="Start a heat" onPress={() => router.push('/start')} />
       <Btn label="Live results" onPress={() => router.push('/results')} />
       <Btn label="Phone check" kind="plain" onPress={() => router.push('/check')} />
+      <Btn label="Organiser" kind="plain" onPress={() => router.push('/admin')} />
 
       {mode.kind === 'live' ? (
         <View style={s.role}>
