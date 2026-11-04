@@ -15,6 +15,9 @@ export type Division = {
   label: string;
   gender?: 'M' | 'W' | 'X';
   level?: 'open' | 'pro';
+  /** Solo athlete, a team racing together, or a relay that takes turns. */
+  entryKind?: 'solo' | 'team' | 'relay';
+  teamSize?: number;
 };
 
 export type Segment = {
@@ -24,6 +27,8 @@ export type Segment = {
   name: string;
   metric: 'distance' | 'reps' | 'calories' | 'time';
   timed: boolean;
+  /** For teams: share the work, everyone does it all, or split it as they like. */
+  teamRule?: 'shared' | 'each' | 'split';
 };
 
 export type SegmentTarget = {
@@ -74,6 +79,8 @@ export type Race = {
   heats: Heat[];
   // Two finishes for one entry further apart than this are flagged.
   disagreeThresholdMs: number;
+  /** Minutes after a heat's last result before it locks. Default 15. */
+  protestWindowMin?: number;
 };
 
 export type TimingKind = 'start' | 'finish' | 'split' | 'undo' | 'penalty' | 'status' | 'edit';
@@ -85,7 +92,11 @@ export type TimingPayload =
   | { kind: 'undo'; targetId: string }
   | { kind: 'penalty'; seconds: number; reason: string }
   | { kind: 'status'; status: 'DNF' | 'DNS' | 'DSQ' | 'racing'; reason: string }
-  | { kind: 'edit'; field: 'finish'; at: number; reason: string };
+  | { kind: 'edit'; field: 'finish'; at: number; reason: string }
+  /** Push every heat that has not started back by this many minutes. */
+  | { kind: 'delay'; minutes: number; reason: string }
+  /** Close the protest window for a heat now. */
+  | { kind: 'lock'; heatId: string };
 
 // Append only. Never updated or deleted. A correction is a new event.
 export type TimingEvent = {

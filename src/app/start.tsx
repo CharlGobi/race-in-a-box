@@ -18,6 +18,8 @@ export default function StartHeat() {
     events.find((e) => e.payload.kind === 'start' && e.payload.heatId === heatId && !undone.has(e.id));
 
   const nextHeat = race.heats.find((h) => !startOf(h.id));
+  // Planned times include any delay the head judge gave.
+  const planned = new Map(results.heats.map((h) => [h.heatId, h.plannedStartAt]));
 
   return (
     <Screen>
@@ -26,7 +28,7 @@ export default function StartHeat() {
           <Text style={s.nextTitle}>Next: heat {nextHeat.number}</Text>
           <P>
             {nextHeat.slots.length} teams, {divLabel.get(entryById.get(nextHeat.slots[0].entryId)!.divisionId)}. Planned{' '}
-            {clock(nextHeat.startAt)}.
+            {clock(planned.get(nextHeat.id) ?? nextHeat.startAt)}.
           </P>
           <Btn
             label={`Go! Start heat ${nextHeat.number}`}
@@ -47,7 +49,7 @@ export default function StartHeat() {
             <View style={{ flex: 1 }}>
               <Text style={s.rowTitle}>Heat {h.number}</Text>
               <Text style={s.rowSub}>
-                {st ? `Started ${clock(st.deviceTs)}. ${finished} of ${h.slots.length} finished` : `Planned ${clock(h.startAt)}`}
+                {st ? `Started ${clock(st.deviceTs)}. ${finished} of ${h.slots.length} finished` : `Planned ${clock(planned.get(h.id) ?? h.startAt)}`}
               </Text>
             </View>
             {st && finished === 0 ? (

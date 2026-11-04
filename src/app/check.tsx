@@ -16,7 +16,7 @@ function Line({ label, value, ok }: { label: string; value: string; ok: boolean 
 }
 
 export default function Check() {
-  const { race, deviceId, events, waitingToSend, serverConnected, persisted, resetRehearsal } = useRace();
+  const { race, deviceId, events, waitingToSend, serverConnected, online, lastSyncAt, problem, persisted, mode, resetRehearsal, leaveLiveRace } = useRace();
 
   const exportAll = async () => {
     const data = JSON.stringify({ race: race.id, deviceId, exportedAt: new Date().toISOString(), events }, null, 1);
@@ -50,14 +50,24 @@ export default function Check() {
       <Line label="Saved on this phone" value={`${events.length} taps`} ok />
       <Line
         label="Sending"
-        value={serverConnected ? `${waitingToSend} waiting to send` : 'No server yet in this rehearsal build'}
-        ok={serverConnected ? waitingToSend === 0 : null}
+        value={
+          !serverConnected
+            ? 'Rehearsal, nothing is sent'
+            : problem
+              ? problem
+              : `${online ? 'Connected' : 'No signal'}. ${waitingToSend} waiting. Last sent ${lastSyncAt ? new Date(lastSyncAt).toLocaleTimeString('en-ZA') : 'not yet'}`
+        }
+        ok={serverConnected ? online && !problem && waitingToSend === 0 : null}
       />
       <Line label="Battery" value="Charge to full and bring a power bank" ok={null} />
       <Line label="This phone" value={deviceId} ok={null} />
 
       <Btn label="Export everything" onPress={exportAll} />
-      <Btn label="New rehearsal (keeps old data)" kind="plain" onPress={resetRehearsal} />
+      {mode.kind === 'live' ? (
+        <Btn label="Leave this race (taps stay on the phone)" kind="plain" onPress={leaveLiveRace} />
+      ) : (
+        <Btn label="New rehearsal (keeps old data)" kind="plain" onPress={resetRehearsal} />
+      )}
     </Screen>
   );
 }

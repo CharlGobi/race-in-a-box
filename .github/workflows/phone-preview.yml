@@ -29,6 +29,9 @@ jobs:
       - run: npx expo export --platform web
         env:
           EXPO_BASE_URL: /${{ github.event.repository.name }}
+          # Public values, set under Settings, Secrets and variables, Actions, Variables.
+          EXPO_PUBLIC_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
       # Deep links such as /finish open the app instead of a 404.
       - run: cp dist/index.html dist/404.html
       - uses: actions/upload-pages-artifact@v3

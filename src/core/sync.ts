@@ -14,7 +14,14 @@ export class OfflineError extends Error {
   }
 }
 
-export type SyncState = { savedOnPhone: number; waitingToSend: number; lastSyncAt?: number; online: boolean };
+export type SyncState = {
+  savedOnPhone: number;
+  waitingToSend: number;
+  lastSyncAt?: number;
+  online: boolean;
+  /** Set when the server refused, for example a revoked link. Offline leaves it empty. */
+  problem?: string;
+};
 
 /** Push what is waiting, then pull what other devices sent. Never drops a local event. */
 export async function syncOnce(store: LocalStore, transport: SyncTransport, raceId: string): Promise<SyncState> {
@@ -28,10 +35,11 @@ export async function syncOnce(store: LocalStore, transport: SyncTransport, race
     await store.put(remote);
     const all = await store.all(raceId);
     return { savedOnPhone: all.length, waitingToSend: all.filter((e) => !e.serverTs).length, lastSyncAt: Date.now(), online: true };
-  } catch {
-    // Offline or server error. Everything stays on the phone and goes on the next try.
+  } catch (err) {
+    // Offline or refused. Everything stays on the phone and goes on the next try.
     const all = await store.all(raceId);
-    return { savedOnPhone: all.length, waitingToSend: all.filter((e) => !e.serverTs).length, online: false };
+    const problem = err instanceof OfflineError ? undefined : ((err as { code?: string }).code ?? 'server');
+    return { savedOnPhone: all.length, waitingToSend: all.filter((e) => !e.serverTs).length, online: false, problem };
   }
 }
 
