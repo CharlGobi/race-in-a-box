@@ -63,6 +63,9 @@ const MESSAGES: Record<string, string> = {
   not_allowed: 'Your account can not do that for this gym.',
   name_required: 'Give the race a name.',
   duplicate: 'That web address or number is already taken.',
+  heat_full: 'That heat is full. Pick a heat with a free lane, or leave the heat empty.',
+  unknown_heat: 'There is no heat with that number.',
+  has_times: 'This entry has times, so it can not be removed. The head judge can mark it DNS or DNF.',
 };
 
 /** Call an organiser database function as the signed in user. */

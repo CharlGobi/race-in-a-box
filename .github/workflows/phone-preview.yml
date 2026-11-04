@@ -32,7 +32,9 @@ jobs:
           # Public values, set under Settings, Secrets and variables, Actions, Variables.
           EXPO_PUBLIC_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
           EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
-      # Deep links such as /finish open the app instead of a 404.
+      # Every fixed address gets its own page file so it answers 200, and
+      # anything else still opens the app through 404.html.
+      - run: node scripts/static-routes.mjs dist
       - run: cp dist/index.html dist/404.html
       - uses: actions/upload-pages-artifact@v3
         with:
