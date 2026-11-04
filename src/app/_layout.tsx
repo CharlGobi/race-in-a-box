@@ -27,6 +27,9 @@ function Nav() {
       <Stack.Screen name="start" options={{ title: 'Start a heat' }} />
       <Stack.Screen name="finish" options={{ title: 'Finish line' }} />
       <Stack.Screen name="results" options={{ title: 'Live results' }} />
+      <Stack.Screen name="judge" options={{ title: 'Head judge' }} />
+      <Stack.Screen name="r/[slug]/index" options={{ title: 'Results' }} />
+      <Stack.Screen name="r/[slug]/[code]" options={{ title: 'Result' }} />
       <Stack.Screen name="check" options={{ title: 'Phone check' }} />
       <Stack.Screen name="l/[token]" options={{ title: 'Race link' }} />
       <Stack.Screen name="admin/index" options={{ title: 'Organiser' }} />

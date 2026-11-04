@@ -79,6 +79,8 @@ export type Race = {
   heats: Heat[];
   // Two finishes for one entry further apart than this are flagged.
   disagreeThresholdMs: number;
+  /** Minutes after a heat's last result before it locks. Default 15. */
+  protestWindowMin?: number;
 };
 
 export type TimingKind = 'start' | 'finish' | 'split' | 'undo' | 'penalty' | 'status' | 'edit';
@@ -90,7 +92,11 @@ export type TimingPayload =
   | { kind: 'undo'; targetId: string }
   | { kind: 'penalty'; seconds: number; reason: string }
   | { kind: 'status'; status: 'DNF' | 'DNS' | 'DSQ' | 'racing'; reason: string }
-  | { kind: 'edit'; field: 'finish'; at: number; reason: string };
+  | { kind: 'edit'; field: 'finish'; at: number; reason: string }
+  /** Push every heat that has not started back by this many minutes. */
+  | { kind: 'delay'; minutes: number; reason: string }
+  /** Close the protest window for a heat now. */
+  | { kind: 'lock'; heatId: string };
 
 // Append only. Never updated or deleted. A correction is a new event.
 export type TimingEvent = {

@@ -146,6 +146,43 @@ export function Choice<T extends string>({
   );
 }
 
+/** Like Choice, but any number can be picked. */
+export function MultiChoice({
+  label,
+  options,
+  values,
+  onToggle,
+}: {
+  label: string;
+  options: { value: string; label: string }[];
+  values: string[];
+  onToggle: (v: string) => void;
+}) {
+  return (
+    <View style={s.field} accessibilityLabel={label}>
+      <Text style={s.fieldLabel}>{label}</Text>
+      <View style={s.choiceRow}>
+        {options.map((o) => {
+          const on = values.includes(o.value);
+          return (
+            <Pressable
+              key={o.value}
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: on }}
+              onPress={() => {
+                tap();
+                onToggle(o.value);
+              }}
+              style={[s.choice, on && s.choiceOn]}>
+              <Text style={[s.choiceText, on && s.choiceTextOn]}>{o.label}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
 /** A number box that lets people type freely and reports a number once it parses. */
 export function NumberField({
   label,
