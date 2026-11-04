@@ -1,11 +1,11 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { adminRpc, AdminError, sendSignInLink, supabase, useSession } from '@/admin/client';
 import { Btn, C, Field, H1, Notice, P, Screen, tap } from '@/ui/kit';
 
-type Org = { id: string; name: string; subdomain: string; role: string };
+type Org = { id: string; name: string; subdomain: string; role: string; trialUrl?: string | null };
 type RaceRow = { id: string; name: string; raceDate: string; venue: string; status: string; entries: number };
 
 export default function OrganiserHome() {
@@ -138,8 +138,36 @@ function Gym({ email }: { email: string }) {
           </Text>
         </Pressable>
       ))}
+      {org.role === 'organiser' ? <TrialLink org={org} /> : null}
       <Btn label="Sign out" kind="plain" onPress={() => supabase?.auth.signOut()} />
     </Screen>
+  );
+}
+
+function TrialLink({ org }: { org: Org }) {
+  const [url, setUrl] = useState(org.trialUrl ?? '');
+  const [msg, setMsg] = useState<string | null>(null);
+  const clean = url.trim();
+  return (
+    <View style={s.race}>
+      <Text style={s.raceName}>Trial class link</Text>
+      <Text style={s.raceSub}>Where the Join a free class button on share cards goes. For example your booking page.</Text>
+      <Field label="Booking link" value={url} onChangeText={setUrl} autoCapitalize="none" inputMode="url" placeholder="https://" />
+      <Btn
+        label="Save link"
+        kind="plain"
+        disabled={clean === (org.trialUrl ?? '') || (clean !== '' && !/^https:\/\//i.test(clean))}
+        onPress={async () => {
+          try {
+            await adminRpc('update_org_trial_url', { p_org: org.id, p_url: clean });
+            setMsg(clean ? 'Saved.' : 'Removed.');
+          } catch (e) {
+            setMsg((e as AdminError).message);
+          }
+        }}
+      />
+      {msg ? <Text style={s.raceSub}>{msg}</Text> : null}
+    </View>
   );
 }
 

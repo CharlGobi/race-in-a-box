@@ -24,6 +24,8 @@ async function seedGym(db: PGlite, user: string, name: string, sub: string): Pro
     const heat = await one(`insert into heats (org_id, race_id, number, start_at) values ($1, $2, 1, now()) returning id`, [org, race]);
     await db.query(`insert into heat_slots (org_id, race_id, heat_id, lane, entry_id) values ($1, $2, $3, 1, $4)`, [org, race, heat, entry]);
     await db.query(`select public.save_template($1, null, 'My format', '{"divisions":[]}'::jsonb)`, [org]);
+    const slug = (await db.query<{ s: string }>('select public_slug s from races where id = $1', [race])).rows[0]!.s;
+    await db.query(`select public.submit_visitor($1, '1', 'Megan', 'megan@example.com', true)`, [slug]);
     const token = (await db.query<{ t: string }>(`select public.create_access_link($1, 'judge', 'Finish line', 24) as t`, [race])).rows[0]!.t;
     const linkId = (await db.query<{ id: string }>(`select id from access_links where race_id = $1`, [race])).rows[0]!.id;
     return { org, race, division, segment, entry, athlete, heat, token, linkId };
@@ -40,7 +42,7 @@ async function push(db: PGlite, token: string, events: unknown[]) {
   );
 }
 
-const TABLES = ['orgs', 'org_members', 'races', 'divisions', 'segments', 'segment_targets', 'entries', 'athletes', 'entry_members', 'heats', 'heat_slots', 'access_links', 'timing_events', 'audit_log', 'race_templates'];
+const TABLES = ['orgs', 'org_members', 'races', 'divisions', 'segments', 'segment_targets', 'entries', 'athletes', 'entry_members', 'heats', 'heat_slots', 'access_links', 'timing_events', 'audit_log', 'race_templates', 'visitor_leads'];
 
 describe('section 6A: cross tenant test on every table', () => {
   let db: PGlite;
