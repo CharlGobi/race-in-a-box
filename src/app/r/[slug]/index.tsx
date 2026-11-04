@@ -24,7 +24,10 @@ export default function PublicResults() {
 
   const { race, org, results } = data;
   const divisions = race.template.divisions;
-  const current = picked && divisions.some((d) => d.id === picked) ? picked : divisions[0]?.id;
+  // Open on the first division where someone has started, so nobody lands on an empty list.
+  const active = divisions.find((d) => results.rows.some((r) => r.entry.divisionId === d.id && r.status !== 'entered'));
+  const withEntries = divisions.find((d) => results.rows.some((r) => r.entry.divisionId === d.id));
+  const current = picked && divisions.some((d) => d.id === picked) ? picked : (active ?? withEntries ?? divisions[0])?.id;
   const rows = results.rows
     .filter((r) => r.entry.divisionId === current && r.status !== 'entered')
     .sort((a, b) => (a.rank ?? 9999) - (b.rank ?? 9999) || Number(a.entry.code) - Number(b.entry.code));

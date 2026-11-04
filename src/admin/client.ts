@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 
 import { server } from '@/config';
+import { readBody } from '@/core/sync-supabase';
 
 // Organisers sign in with an email link. Judges never do: they use access links.
 // The Supabase client is only used for sign in. Data goes through the database
@@ -89,5 +90,5 @@ export async function adminRpc<T>(fn: string, args: Record<string, unknown>): Pr
     const key = Object.keys(MESSAGES).find((k) => message.includes(k)) ?? (message.includes('unique') ? 'duplicate' : '');
     throw new AdminError(key ? MESSAGES[key]! : message || 'The server had a problem. Try again.');
   }
-  return (await res.json()) as T;
+  return readBody<T>(res);
 }
