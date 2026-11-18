@@ -44,7 +44,7 @@
     "fake-indexeddb": "^6.0.1",
     "typescript": "~6.0.3",
     "vitest": "^3.2.4",
-    "write-excel-file": "^2.0.10"
+    "write-excel-file": "^4.1.1"
   },
   "scripts": {
     "start": "expo start",
